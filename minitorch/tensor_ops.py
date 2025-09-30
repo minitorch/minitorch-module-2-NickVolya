@@ -268,8 +268,15 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        for i in range(len(out)):
+            in_ind = np.zeros_like(in_shape)
+            out_ind = np.zeros_like(out_shape)
+
+            to_index(i, out_shape, out_ind)
+
+            broadcast_index(out_ind, out_shape, in_shape, in_ind)
+
+            out[index_to_position(out_ind, out_strides)] = fn(in_storage[index_to_position(in_ind, in_strides)])
 
     return _map
 
@@ -318,8 +325,17 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        for i in range(len(out)):
+            a_ind = np.zeros_like(a_shape)
+            b_ind = np.zeros_like(b_shape)
+            out_ind = np.zeros_like(out_shape)
+
+            to_index(i, out_shape, out_ind)
+
+            broadcast_index(out_ind, out_shape, a_shape, a_ind)
+            broadcast_index(out_ind, out_shape, b_shape, b_ind)
+
+            out[index_to_position(out_ind, out_strides)] = fn(a_storage[index_to_position(a_ind, a_strides)], b_storage[index_to_position(b_ind, b_strides)])
 
     return _zip
 
@@ -354,8 +370,15 @@ def tensor_reduce(fn: Callable[[float, float], float]) -> Any:
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        for i in range(len(a_storage)):
+            a_ind = np.zeros_like(a_shape)
+            to_index(i, a_shape, a_ind)
+
+            out_ind = list(a_ind)
+            out_ind[reduce_dim] = 0
+
+            out_pos = index_to_position(out_ind, out_strides)
+            out[out_pos] = fn(out[out_pos], a_storage[index_to_position(a_ind, a_strides)])
 
     return _reduce
 
