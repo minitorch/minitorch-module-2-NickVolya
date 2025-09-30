@@ -22,7 +22,11 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     Returns:
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    vals_arg_plus_epsilon = list(vals)
+    vals_arg_plus_epsilon[arg] += epsilon
+    vals_arg_minus_epsilon = list(vals)
+    vals_arg_minus_epsilon[arg] -= epsilon
+    return (f(*vals_arg_plus_epsilon) - f(*vals_arg_minus_epsilon)) / (2 * epsilon)
 
 
 variable_count = 1
@@ -60,7 +64,19 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     Returns:
         Non-constant Variables in topological order starting from the right.
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    visited = set()
+    order = []
+
+    def dfs(var: Variable) -> None:
+        if var.unique_id in visited or var.is_constant():
+            return
+        visited.add(var.unique_id)
+        for parent in var.parents:
+            dfs(parent)
+        order.append(var)
+
+    dfs(variable)
+    return order[::-1]
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -74,7 +90,18 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    topsort = topological_sort(variable)
+    scalar_deriv = {variable.unique_id: deriv}
+    for node in topsort:
+        if node.is_leaf():
+            node.accumulate_derivative(scalar_deriv[node.unique_id])
+        else:
+            for scalar, der in node.chain_rule(scalar_deriv[node.unique_id]):
+                if scalar.unique_id not in scalar_deriv:
+                    scalar_deriv[scalar.unique_id] = der
+                else:
+                    scalar_deriv[scalar.unique_id] += der
+
 
 
 @dataclass
