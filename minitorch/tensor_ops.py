@@ -268,7 +268,7 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        for i in range(len(in_storage)):
+        for i in range(len(out)):
             in_ind = np.zeros_like(in_shape)
             out_ind = np.zeros_like(out_shape)
 
